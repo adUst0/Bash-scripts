@@ -1,0 +1,26 @@
+# run file[.cpp]
+# Compile and run .cpp code
+#------------------------------------------
+function echoRed() {
+	echo -e "\e[91m$1\e[0m"
+}
+
+line='----------------------------------'
+TIMEFORMAT=$'\e[91m----------------------------------\nExecution time: %3R s\e[0m'
+
+# .cpp in the argument can be omitted
+if [[ $1 == *.cpp ]]; then 
+	binaryName=${1%.*}
+else 
+	binaryName=$1
+fi
+
+echoRed "Compiling $binaryName.cpp:"
+if g++ $binaryName.cpp -o $binaryName -std=c++11; then
+	echoRed "Running $binaryName:\n$line"
+	time ./$binaryName
+	echoRed "Process returned: $?"
+fi
+
+echoRed $line
+#------------------------------------------
