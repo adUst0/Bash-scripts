@@ -1,12 +1,12 @@
+#!/bin/bash
 # run file[.cpp]
 # Compile and run .cpp code
-#------------------------------------------
+
 function echoRed() {
 	echo -e "\e[91m$1\e[0m"
 }
 
 line='----------------------------------'
-TIMEFORMAT=$'\e[91m----------------------------------\nExecution time: %3R s\e[0m'
 
 # .cpp in the argument can be omitted
 if [[ $1 == *.cpp ]]; then 
@@ -18,9 +18,8 @@ fi
 echoRed "Compiling $binaryName.cpp:"
 if g++ $binaryName.cpp -o $binaryName -std=c++11; then
 	echoRed "Running $binaryName:\n$line"
-	time ./$binaryName
-	echoRed "Process returned: $?"
+	/usr/bin/time --quiet -f $'\e[91m-------------------------------------\nExecution time: %e seconds\nMemory used: %M KB\e[0m' ./$binaryName
+	echoRed "Process retuned: $?"
 fi
 
 echoRed $line
-#------------------------------------------
