@@ -18,7 +18,14 @@ fi
 echoRed "Compiling $binaryName.cpp:"
 if g++ $binaryName.cpp -o $binaryName -std=c++11; then
 	echoRed "Running $binaryName:\n$line"
-	/usr/bin/time --quiet -f $'\e[91m-------------------------------------\nExecution time: %e seconds\nMemory used: %M KB\e[0m' ./$binaryName
+
+	if [ -e /usr/bin/time ]; then
+		/usr/bin/time --quiet -f $'\e[91m-------------------------------------\nExecution time: %e seconds\nMemory used: %M KB\e[0m' ./$binaryName
+	else
+		TIMEFORMAT=$'\e[91m----------------------------------\nExecution time: %3R seconds\e[0m'
+		time ./$binaryName
+	fi
+	
 	echoRed "Process retuned: $?"
 fi
 
