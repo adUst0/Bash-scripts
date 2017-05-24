@@ -8,15 +8,31 @@ function echoRed() {
 
 line='----------------------------------'
 
-# .cpp in the argument can be omitted
+# .cpp in the argument can be omitted.
 if [[ $1 == *.cpp ]]; then 
 	binaryName=${1%.*}
 else 
 	binaryName=$1
 fi
 
-echoRed "Compiling $binaryName.cpp:"
-if g++ $binaryName.cpp -o $binaryName -std=c++11; then
+# The source file was updated. Recompile.
+if [[ -e $binaryName && `date +%y%m%d%H%M%S -r $binaryName` < `date +%y%m%d%H%M%S -r $binaryName.cpp` ]]; then
+	echoRed "Compiling $binaryName.cpp:"
+	if g++ $binaryName.cpp -o $binaryName -std=c++11; then
+		echoRed "Running $binaryName:\n$line"
+
+		if [ -e /usr/bin/time ]; then
+			/usr/bin/time --quiet -f $'\e[91m-------------------------------------\nExecution time: %e seconds\nMemory used: %M KB\e[0m' ./$binaryName
+		else
+			TIMEFORMAT=$'\e[91m----------------------------------\nExecution time: %3R seconds\e[0m'
+			time ./$binaryName
+		fi
+		
+		echoRed "Process retuned: $?"
+	fi
+
+# The source wasn't modified after the previous compilation.
+else
 	echoRed "Running $binaryName:\n$line"
 
 	if [ -e /usr/bin/time ]; then
