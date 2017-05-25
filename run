@@ -15,8 +15,8 @@ else
 	binaryName=$1
 fi
 
-# The source file was updated. Recompile.
-if [[ -e $binaryName && `date +%y%m%d%H%M%S -r $binaryName` < `date +%y%m%d%H%M%S -r $binaryName.cpp` ]]; then
+# The source file was updated or doesn't exist. Recompile.
+if [[ !(-e $binaryName) || -e $binaryName && `date +%y%m%d%H%M%S -r $binaryName` < `date +%y%m%d%H%M%S -r $binaryName.cpp` ]]; then
 	echoRed "Compiling $binaryName.cpp:"
 	if g++ $binaryName.cpp -o $binaryName -std=c++11; then
 		echoRed "Running $binaryName:\n$line"
