@@ -19,7 +19,8 @@ fresh-ubuntu.hs
 
 run
 ===============
-* Compile and run .cpp code
+* Build and run C/C++ source
 * Usage: 
 	* Add this script to PATH
 	* run file[.cpp]
+	* run file[.c]
