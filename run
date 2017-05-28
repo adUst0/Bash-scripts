@@ -1,48 +1,55 @@
 #!/bin/bash
+# Build and run c/c++ source
+
+# Usage:
 # run file[.cpp]
-# Compile and run .cpp code
+# run file[.c]
 
 function echoRed() {
 	echo -e "\e[91m$1\e[0m"
 }
 
-line='----------------------------------'
-
-# .cpp in the argument can be omitted.
-if [[ $1 == *.cpp ]]; then 
-	binaryName=${1%.*}
-else 
-	binaryName=$1
-fi
-
-# The source file was updated or binary doesn't exist. Recompile.
-if [[ !(-e $binaryName) || -e $binaryName && `date +%y%m%d%H%M%S -r $binaryName` < `date +%y%m%d%H%M%S -r $binaryName.cpp` ]]; then
-	echoRed "Compiling $binaryName.cpp:"
-	if g++ $binaryName.cpp -o $binaryName -std=c++11; then
-		echoRed "Running $binaryName:\n$line"
-
-		if [ -e /usr/bin/time ]; then
-			/usr/bin/time --quiet -f $'\e[91m-------------------------------------\nExecution time: %e seconds\nMemory used: %M KB\e[0m' ./$binaryName
-		else
-			TIMEFORMAT=$'\e[91m----------------------------------\nExecution time: %3R seconds\e[0m'
-			time ./$binaryName
-		fi
-		
-		echoRed "Process retuned: $?"
-	fi
-
-# The source wasn't modified after the previous compilation.
-else
-	echoRed "Running $binaryName:\n$line"
+function execute() {
+	echoRed "Running $1:\n$line"
 
 	if [ -e /usr/bin/time ]; then
-		/usr/bin/time --quiet -f $'\e[91m-------------------------------------\nExecution time: %e seconds\nMemory used: %M KB\e[0m' ./$binaryName
+		/usr/bin/time --quiet -f $'\e[91m-------------------------------------\nExecution time: %e seconds\nMemory used: %M KB\e[0m' ./$1
 	else
 		TIMEFORMAT=$'\e[91m----------------------------------\nExecution time: %3R seconds\e[0m'
-		time ./$binaryName
+		time ./$1
 	fi
 	
 	echoRed "Process retuned: $?"
+}
+
+line='----------------------------------'
+
+# .cpp / .c in the argument can be omitted.
+if [[ $1 == *.cpp ]]; then 
+	binaryName=${1%.*}
+	src=cpp
+elif [[ $1 == *.c ]]; then
+	binaryName=${1%.*}
+	src=c
+else
+	binaryName=$1
+	if [[ -e ${binaryName}.c ]]; then
+		src=c
+	else
+		src=cpp
+	fi
+fi
+
+# The source file was updated or binary doesn't exist. Recompile.
+if [[ !(-e $binaryName) || -e $binaryName && `date +%y%m%d%H%M%S -r $binaryName` < `date +%y%m%d%H%M%S -r $binaryName.$src` ]]; then
+	
+	echoRed "Compiling $binaryName.$src:"
+	if [[ $src == cpp ]] && g++ $binaryName.cpp -o $binaryName -std=c++11; then execute $binaryName
+	elif [[ $src == c ]] && gcc $binaryName.c -o $binaryName; then execute $binaryName; fi
+
+# The source wasn't modified after the previous compilation.
+else 
+	execute $binaryName
 fi
 
 echoRed $line
