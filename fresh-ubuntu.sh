@@ -19,6 +19,9 @@ gsettings set com.canonical.Unity.ApplicationsLens display-available-apps false
 # echoRed "Move Unity luncher to the bottom (Ubuntu 16.04 only)"
 # gsettings set com.canonical.Unity.Launcher launcher-position Bottom
 
+# three-finger tap = mouse3
+echo -e "[Desktop Entry]\nType=Application\nExec=/bin/bash -c \"synclient TapButton3=2\"\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true\nName[en_US]=touchpad.desktop\nName=TouchpadMouse3\nComment[en_US]=\nComment=" > ~/.config/autostart/touchpad.desktop
+
 echoRed "Checking for updates..."
 sudo apt-get -y update
 sudo apt-get -y upgrade
