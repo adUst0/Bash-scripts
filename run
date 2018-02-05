@@ -45,7 +45,7 @@ if [[ !(-e $binaryName) || -e $binaryName && `date +%y%m%d%H%M%S -r $binaryName`
 	
 	echoRed "Compiling $binaryName.$src:"
 	if [[ $src == cpp ]] && g++ $binaryName.cpp -o $binaryName -std=c++11; then execute $binaryName
-	elif [[ $src == c ]] && gcc $binaryName.c -o $binaryName; then execute $binaryName; fi
+	elif [[ $src == c ]] && gcc $binaryName.c -o $binaryName -std=c99; then execute $binaryName; fi
 
 # The source wasn't modified after the previous compilation.
 else 
