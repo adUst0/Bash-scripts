@@ -5,51 +5,68 @@
 # run file[.cpp]
 # run file[.c]
 
+line='----------------------------------'
+
 function echoRed() {
-	echo -e "\e[91m$1\e[0m"
+    echo -e "\e[91m$1\e[0m"
+}
+
+function compile() {
+    binaryName=$1
+    src=$2
+
+    echoRed "Compiling $binaryName.$src:"
+
+    if [[ $src == cpp ]]; then
+        g++ $binaryName.cpp -o $binaryName -std=c++11
+    else
+        gcc $binaryName.c -o $binaryName -std=c99
+    fi
 }
 
 function execute() {
-	echoRed "Running $1:\n$line"
+    echoRed "Running $1:\n$line"
 
-	if [ -e /usr/bin/time ]; then
-		/usr/bin/time --quiet -f $'\e[91m-------------------------------------\nExecution time: %e seconds\nMemory used: %M KB\e[0m' ./$1
-	else
-		TIMEFORMAT=$'\e[91m----------------------------------\nExecution time: %3R seconds\e[0m'
-		time ./$1
-	fi
-	
-	echoRed "Process retuned: $?"
+    binaryName=$1
+    shift # get rid of $1 current value, which is the binaryName
+
+    if [ -e /usr/bin/time ]; then
+        /usr/bin/time --quiet -f $'\e[91m-------------------------------------\nExecution time: %e seconds\nMemory used: %M KB\e[0m' ./$binaryName "$@"
+    else
+        TIMEFORMAT=$'\e[91m----------------------------------\nExecution time: %3R seconds\e[0m'
+        time ./$binaryName "$@"
+    fi
+    
+    echoRed "Process retuned: $?"
 }
 
-line='----------------------------------'
-
+# Determine src type
 # .cpp / .c in the argument can be omitted.
 if [[ $1 == *.cpp ]]; then 
-	binaryName=${1%.*}
-	src=cpp
+    binaryName=${1%.*}
+    src=cpp
 elif [[ $1 == *.c ]]; then
-	binaryName=${1%.*}
-	src=c
+    binaryName=${1%.*}
+    src=c
 else
-	binaryName=$1
-	if [[ -e ${binaryName}.c ]]; then
-		src=c
-	else
-		src=cpp
-	fi
+    binaryName=$1
+    if [[ -e ${binaryName}.c ]]; then
+        src=c
+    elif [[ -e ${binaryName}.cpp ]]; then
+        src=cpp
+    else
+        echoRed `g++`
+        exit
+    fi
 fi
 
-# The source file was updated or binary doesn't exist. Recompile.
-if [[ !(-e $binaryName) || -e $binaryName && `date +%y%m%d%H%M%S -r $binaryName` < `date +%y%m%d%H%M%S -r $binaryName.$src` ]]; then
-	
-	echoRed "Compiling $binaryName.$src:"
-	if [[ $src == cpp ]] && g++ $binaryName.cpp -o $binaryName -std=c++11; then execute $binaryName
-	elif [[ $src == c ]] && gcc $binaryName.c -o $binaryName -std=c99; then execute $binaryName; fi
+shift # get rid of $1 current value, which is the source file name
 
-# The source wasn't modified after the previous compilation.
-else 
-	execute $binaryName
+# Recompile if the source file was updated or binary doesn't exist and execute if succesful compilation
+if [[ !(-e $binaryName) || $binaryName -ot $binaryName.$src ]]; then 
+    compile $binaryName $src && execute $binaryName "$@"
+else
+    execute $binaryName "$@"
 fi
 
 echoRed $line
