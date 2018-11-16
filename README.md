@@ -1,4 +1,4 @@
-fresh-ubuntu.hs
+fresh-ubuntu.sh
 ===============
 * Set clicking on the same icon to minimise the window.
 * Enable Local applciation menus.
