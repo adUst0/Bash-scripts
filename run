@@ -1,9 +1,13 @@
 #!/bin/bash
-# Build and run c/c++ source
-
-# Usage:
-# run file[.cpp]
-# run file[.c]
+#title          :run
+#description    :Build and execute C/C++ programs
+#author         :Boris Ivanov
+#date           :20181216
+#version        :2.0    
+#usage          :run file[.c|.cpp] [arg1 arg2 ...]
+#notes          :Add this script to PATH. The arguments are passed to the program on execution
+#bash_version   :4.3.11(1)-release
+#============================================================================
 
 line='----------------------------------'
 
